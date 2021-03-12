@@ -6,7 +6,7 @@
   no_log: "{{ molecule_no_log }}"
   tasks:
     - name: Destroy instance
-      one_vm:
+      community.general.one_vm:
         api_url: "{{ molecule_yml.driver.options.api_url }}"
         api_username: "{{ molecule_yml.driver.options.api_username }}"
         api_password: "{{ molecule_yml.driver.options.api_password }}"

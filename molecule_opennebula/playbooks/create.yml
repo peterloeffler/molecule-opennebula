@@ -5,8 +5,39 @@
   gather_facts: false
   no_log: "{{ molecule_no_log }}"
   tasks:
+    - name: Template Test
+      community.general.one_template:
+        api_url: "{{ molecule_yml.driver.options.api_url }}"
+        api_username: "{{ molecule_yml.driver.options.api_username }}"
+        api_password: "{{ molecule_yml.driver.options.api_password }}"
+        name: pel01test01
+        template: |
+          CONTEXT = [
+            HOSTNAME = "pel01test01"
+          ]
+          CPU = "1"
+          CUSTOM_ATTRIBUTE = ""
+          DISK = [
+            CACHE = "writeback",
+            DEV_PREFIX = "sd",
+            DISCARD = "unmap",
+            IMAGE = "opensuse-leap-15.2",
+            IMAGE_UNAME = "oneadmin",
+            IO = "threads",
+            SIZE = "" ]
+          MEMORY = "2048"
+          NIC = [
+            MODEL = "virtio",
+            NETWORK = "testnet",
+            NETWORK_UNAME = "oneadmin" ]
+          OS = [
+            ARCH = "x86_64",
+            BOOT = "disk0" ]
+          SCHED_REQUIREMENTS = "CLUSTER_ID=\"100\""
+          VCPU = "2"
+
     - name: Create a new instance
-      one_vm:
+      community.general.one_vm:
         api_url: "{{ molecule_yml.driver.options.api_url }}"
         api_username: "{{ molecule_yml.driver.options.api_username }}"
         api_password: "{{ molecule_yml.driver.options.api_password }}"
@@ -27,8 +58,8 @@
               'vm_id': "{{ item.instances[0].vm_id }}",
               'instance': "{{ item.instances[0].vm_name }}",
               'address': "{{ item.instances[0].networks[0].ip }}",
-              'user': "{{ molecule_yml.driver.options.ssh_user }}",
-              'port': "{{ molecule_yml.driver.options.ssh_port }}", }
+              'user': "{{ molecule_yml.driver.options.ssh_user | default('root') }}",
+              'port': "{{ molecule_yml.driver.options.ssh_port | default(22) }}", }
           with_items: "{{ server.results }}"
           register: instance_config_dict
 
@@ -44,4 +75,4 @@
 
         - name: Wait for instance(s) to be available
           wait_for:
-            timeout: 60
+            timeout: "{{ molecule_yml.driver.options.wait_seconds_for_vm_readiness | default(60) }}"
