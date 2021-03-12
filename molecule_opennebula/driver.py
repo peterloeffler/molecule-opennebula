@@ -69,6 +69,8 @@ class OpenNebula(Driver):
 
         return (
             "ssh {{address}} "
+            "-l {{user}} "
+            "-p {{port}} "
             "{}"
         ).format(connection_options)
 
@@ -91,6 +93,8 @@ class OpenNebula(Driver):
 
             return {
                 "ansible_host": d["address"],
+                "ansible_user": d["user"],
+                "ansible_port": d["port"],
                 "vm_id": d["vm_id"],
                 "connection": "ssh",
                 "ansible_ssh_common_args": " ".join(self.ssh_connection_options),

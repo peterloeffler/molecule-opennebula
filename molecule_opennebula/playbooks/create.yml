@@ -26,7 +26,9 @@
             instance_conf_dict: {
               'vm_id': "{{ item.instances[0].vm_id }}",
               'instance': "{{ item.instances[0].vm_name }}",
-              'address': "{{ item.instances[0].networks[0].ip }}", }
+              'address': "{{ item.instances[0].networks[0].ip }}",
+              'user': "{{ molecule_yml.driver.options.ssh_user }}",
+              'port': "{{ molecule_yml.driver.options.ssh_port }}", }
           with_items: "{{ server.results }}"
           register: instance_config_dict
 
