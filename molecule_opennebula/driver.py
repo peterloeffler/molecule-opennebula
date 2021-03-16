@@ -96,6 +96,7 @@ class OpenNebula(Driver):
                 "ansible_user": d["user"],
                 "ansible_port": d["port"],
                 "vm_id": d["vm_id"],
+                "template_id": d["template_id"],
                 "connection": "ssh",
                 "ansible_ssh_common_args": " ".join(self.ssh_connection_options),
             }

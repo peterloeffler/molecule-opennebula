@@ -5,36 +5,18 @@
   gather_facts: false
   no_log: "{{ molecule_no_log }}"
   tasks:
-    - name: Template Test
+    - name: Create VM Template
+      vars:
+        one_template_j2: "{{ lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') }}/{{ item.one_template_file }}"
       community.general.one_template:
         api_url: "{{ molecule_yml.driver.options.api_url }}"
         api_username: "{{ molecule_yml.driver.options.api_username }}"
         api_password: "{{ molecule_yml.driver.options.api_password }}"
-        name: pel01test01
-        template: |
-          CONTEXT = [
-            HOSTNAME = "pel01test01"
-          ]
-          CPU = "1"
-          CUSTOM_ATTRIBUTE = ""
-          DISK = [
-            CACHE = "writeback",
-            DEV_PREFIX = "sd",
-            DISCARD = "unmap",
-            IMAGE = "opensuse-leap-15.2",
-            IMAGE_UNAME = "oneadmin",
-            IO = "threads",
-            SIZE = "" ]
-          MEMORY = "2048"
-          NIC = [
-            MODEL = "virtio",
-            NETWORK = "testnet",
-            NETWORK_UNAME = "oneadmin" ]
-          OS = [
-            ARCH = "x86_64",
-            BOOT = "disk0" ]
-          SCHED_REQUIREMENTS = "CLUSTER_ID=\"100\""
-          VCPU = "2"
+        name: "{{ item.name }}"
+        template: "{{ lookup('template', one_template_j2) }}"
+      with_items: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: "{{ item.name }}"
 
     - name: Create a new instance
       community.general.one_vm:
@@ -51,11 +33,11 @@
 
     - when: server.changed | bool
       block:
-
         - name: Populate instance config dict
           set_fact:
             instance_conf_dict: {
               'vm_id': "{{ item.instances[0].vm_id }}",
+              'template_id': "{{ item.instances[0].template_id }}",
               'instance': "{{ item.instances[0].vm_name }}",
               'address': "{{ item.instances[0].networks[0].ip }}",
               'user': "{{ molecule_yml.driver.options.ssh_user | default('root') }}",
