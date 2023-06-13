@@ -53,7 +53,7 @@ class OpenNebula(Driver):
 
     def __init__(self, config=None):
         super(OpenNebula, self).__init__(config)
-        self._name = "opennebula"
+        self._name = "molecule-opennebula"
 
     @property
     def name(self):
